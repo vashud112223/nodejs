@@ -1,0 +1,1 @@
+nodejs is a javascript run time environment for js . It is C++ code written on the top of V8 engine;
