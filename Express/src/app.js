@@ -1,9 +1,8 @@
 const express = require("express");
 
-
 const app = express();
 
-const {adminAuth,userAuth} = require('./middlewares/auth')
+const { adminAuth, userAuth } = require("./middlewares/auth");
 // app.use('/',(req,res)=> {
 //     res.end("namaste")
 // })
@@ -15,8 +14,7 @@ const {adminAuth,userAuth} = require('./middlewares/auth')
 // })
 // if we use (use) it will matches all the http methods
 
-
-app.get("/user",userAuth, (req, res) => {
+app.get("/user", userAuth, (req, res) => {
   console.log(req.query);
   res.send({ firstname: "Ashu", lastname: "verma" });
 });
@@ -37,8 +35,6 @@ app.use("/user", [
   },
 ]);
 
-
-
 app.get("/user/:userId/:name/:password", (req, res) => {
   console.log(req.params);
   res.send({ firstname: "Ashu", lastname: "verma" });
@@ -49,34 +45,32 @@ app.post("/user", (req, res) => {
   res.send("User added succesfully");
 });
 
-app.use('/admin',adminAuth)
+app.use("/admin", adminAuth);
 
 app.get("/admin/getAllUser", (req, res) => {
-  //Logic for checking if user is authorized
-  //   const token  = 'xyz';
-  //   const isAuthorized = token==='xyznn';
-  //   if(isAuthorized){
-  //     res.send("All Data sent")
-  //   }
-  //   else{
-  //     res.status(401).send("unauthorized request")
-  //   }
   res.send("All Data sent");
 });
 
 app.delete("/admin/deleteUser", (req, res) => {
-  //Logic for checking if user is authorized
-  //   const token  = 'xyz';
-  //   const isAuthorized = token==='xyz';
-  //   if(isAuthorized){
-  //     res.send("Deleted User")
-  //   }
-  //   else{
-  //     res.status(401).send("unauthorized request")
-  //   }
   res.send("Deleted User");
 });
 // here we are authorizing the user on every http call so to resolve that we need middleware
+
+
+app.get('/getUserData',(req,res)=>{
+    try{
+     throw new Error("ddd")
+    }
+    catch(err){
+         res.status(500).send("something Error Contact us")
+    }
+  
+})
+app.use('/',(err,req,res,next)=>{
+   if(err){
+    res.status(500).send("something went wrong")
+   }
+})
 
 app.listen(3000, () => {
   console.log("Server is successfully on port 3000");
