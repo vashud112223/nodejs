@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "nodejs project",
   "scripts": {
-    "start": "node index.js",
+    "dev": "nodemon Express/src/app.js",
     "test": "jest"
   },
   "author": "Ashutosh",
