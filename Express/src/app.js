@@ -1,6 +1,63 @@
 const express = require("express");
+const {connectDB} = require("./config/database");
+const User = require("./models/user")
 
 const app = express();
+
+app.post('/signup',async(req,res)=>{
+  const user = new User({
+    firstName: "Aman",
+    lastName: "Verma",
+    emailId: "aman@gmail.com",
+    password: "aman@1234",
+    age: 24,
+    gender:"M"
+  })
+  await user.save();
+  res.send("Data added succesfully");
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 const { adminAuth, userAuth } = require("./middlewares/auth");
 // app.use('/',(req,res)=> {
@@ -56,22 +113,27 @@ app.delete("/admin/deleteUser", (req, res) => {
 });
 // here we are authorizing the user on every http call so to resolve that we need middleware
 
-
-app.get('/getUserData',(req,res)=>{
-    try{
-     throw new Error("ddd")
-    }
-    catch(err){
-         res.status(500).send("something Error Contact us")
-    }
-  
-})
-app.use('/',(err,req,res,next)=>{
-   if(err){
-    res.status(500).send("something went wrong")
-   }
-})
-
-app.listen(3000, () => {
-  console.log("Server is successfully on port 3000");
+app.get("/getUserData", (req, res) => {
+  try {
+    throw new Error("ddd");
+  } catch (err) {
+    res.status(500).send("something Error Contact us");
+  }
 });
+// if any error this will handle so always put it last
+app.use("/", (err, req, res, next) => {
+  if (err) {
+    res.status(500).send("something went wrong");
+  }
+});
+
+connectDB()
+  .then(() => {
+    console.log("Database connection established");
+    app.listen(3000, () => {
+      console.log("Server is successfully on port 3000");
+    });
+  })
+  .catch((err) => {
+    console.error("Database connection cannot be established");
+  });
