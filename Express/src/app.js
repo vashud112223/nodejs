@@ -1,63 +1,119 @@
 const express = require("express");
-const {connectDB} = require("./config/database");
-const User = require("./models/user")
+const { connectDB } = require("./config/database");
+const User = require("./models/user");
 
 const app = express();
 
-app.post('/signup',async(req,res)=>{
-  const user = new User({
-    firstName: "Aman",
-    lastName: "Verma",
-    emailId: "aman@gmail.com",
-    password: "aman@1234",
-    age: 24,
-    gender:"M"
-  })
-  await user.save();
-  res.send("Data added succesfully");
+app.use(express.json()); // this is use as middleware to convert the json into javascript object.
+app.post("/signup", async (req, res) => {
+  const user = new User(req.body);
+  // Creating a new Instance of the user model
+  //   const user = new User({
+  //     firstName: "Aman",
+  //     lastName: "Verma",
+  //     emailId: "aman@gmail.com",
+  //     password: "aman@1234",
+  //     age: 24,
+  //     gender:"M"
+  //   })
+  try {
+    await user.save();
+    res.send("Data added succesfully");
+  } catch (err) {
+    res.status(400).send("Error saving the data ;" + err.message);
+  }
 });
 
+// get user by email
 
+app.get("/user", async (req, res) => {
+  const userEmail = req.body.emailId;
+  try {
+    const user = await User.find({ emailId: userEmail });
+    if (user.length === 0) {
+      res.status(404).send("User not found");
+    } else {
+      res.send(user);
+    }
+  } catch (err) {
+    res.status(400).send("Something went wrong");
+  }
+});
+//Feed Api - GET /feed - get all the users from the database
+app.get("/feed", async (req, res) => {
+  const userEmail = req.body.emailId;
+  try {
+    const user = await User.find({});
+    if (user.length === 0) {
+      res.status(404).send("User not found");
+    } else {
+      res.send(user);
+    }
+  } catch (err) {
+    res.status(400).send("Something went wrong");
+  }
+});
 
+app.get("/user", async (req, res) => {
+  const userEmail = req.body.emailId;
+  try {
+    const user = await User.findOne({ emailId: userEmail });
+    if (!user) {
+      res.status(404).send("User not found");
+    } else {
+      res.send(user);
+    }
+  } catch (err) {
+    res.status(400).send("Something went wrong");
+  }
+});
 
+app.get("/userid", async (req, res) => {
+  const userId = req.body._id;
+  try {
+    const user = await User.findById({ _id: userId });
+    if (!user) {
+      res.status(404).send("User not found");
+    } else {
+      res.send(user);
+    }
+  } catch (err) {
+    res.status(400).send("Something went wrong");
+  }
+});
 
+// Delete the user
+app.delete("/delete", async (req, res) => {
+  const userId = req.body.userId;
+  try {
+    const user = await User.findByIdAndDelete({ _id: userId }); // or (userId) both work
+    if (!user) {
+      res.status(404).send("User not found");
+    } else {
+      res.send("user deleted successfully");
+    }
+  } catch (err) {
+    res.status(400).send("Something went wrong");
+  }
+});
 
+// Update the user
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+app.patch("/update", async (req, res) => {
+  const userId = req.body.userId;
+  const data = req.body;
+  try {
+    const user = await User.findByIdAndUpdate({ _id: userId },data,{returnDocument:'after'}); 
+    console.log(user)
+    if (!user) {
+      res.status(404).send("User not found");
+    } else {
+      res.send("user updated successfully");
+    }
+  } catch (err) {
+    res.status(400).send("Something went wrong");
+  }
+});
 
 const { adminAuth, userAuth } = require("./middlewares/auth");
 // app.use('/',(req,res)=> {
