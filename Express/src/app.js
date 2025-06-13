@@ -99,19 +99,30 @@ app.delete("/delete", async (req, res) => {
 
 // Update the user
 
-app.patch("/update", async (req, res) => {
-  const userId = req.body.userId;
+app.patch("/update/:userId", async (req, res) => {
+  const userId = req.params?.userId;
   const data = req.body;
   try {
-    const user = await User.findByIdAndUpdate({ _id: userId },data,{returnDocument:'after'}); 
-    console.log(user)
-    if (!user) {
-      res.status(404).send("User not found");
-    } else {
-      res.send("user updated successfully");
+    const Allowed_Update = ["age", "firstName", "lastName", "skills", "gender"];
+
+    const isUpdateAllowed = Object.keys(data).every((k) =>
+      Allowed_Update.includes(k)
+    );
+    if (!isUpdateAllowed) {
+      throw new Error("Update not allowed");
     }
+    if(data?.skills.length >10) {
+      throw new Error("skiils cannot be greater than 10")
+    }
+    const user = await User.findByIdAndUpdate({ _id: userId }, data, {
+      returnDocument: "after",
+      runValidators: true,
+    });
+    console.log(user);
+
+    res.send("user updated successfully");
   } catch (err) {
-    res.status(400).send("Something went wrong");
+    res.status(400).send("Update failed:" + err.message);
   }
 });
 
