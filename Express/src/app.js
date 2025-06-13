@@ -1,26 +1,65 @@
 const express = require("express");
 const { connectDB } = require("./config/database");
 const User = require("./models/user");
+const { ValidateUser } = require("./utils/validation");
+const bcrypt = require("bcrypt");
 
 const app = express();
 
 app.use(express.json()); // this is use as middleware to convert the json into javascript object.
 app.post("/signup", async (req, res) => {
-  const user = new User(req.body);
-  // Creating a new Instance of the user model
-  //   const user = new User({
-  //     firstName: "Aman",
-  //     lastName: "Verma",
-  //     emailId: "aman@gmail.com",
-  //     password: "aman@1234",
-  //     age: 24,
-  //     gender:"M"
-  //   })
+  // Validate the user
   try {
+    ValidateUser(req);
+
+    // Encrypt the password
+
+    const { firstName, lastName, emailId, password } = req.body;
+
+    const passwordHash = await bcrypt.hash(password, 10);
+
+    console.log(passwordHash);
+    console.log({ firstName });
+    const user = new User({
+      firstName,
+      lastName,
+      emailId,
+      password: passwordHash,
+    });
+    // Creating a new Instance of the user model
+    //   const user = new User({
+    //     firstName: "Aman",
+    //     lastName: "Verma",
+    //     emailId: "aman@gmail.com",
+    //     password: "aman@1234",
+    //     age: 24,
+    //     gender:"M"
+    //   })
+
     await user.save();
     res.send("Data added succesfully");
   } catch (err) {
     res.status(400).send("Error saving the data ;" + err.message);
+  }
+});
+
+app.post("/login", async (req, res) => {
+  try {
+    const { emailId, password } = req.body;
+
+    const user = await User.findOne({ emailId: emailId });
+    if (!user) {
+      throw new Error("Email is not present in DB");
+    }
+
+    const ispasswordvalid = await bcrypt.compare(password, user.password);
+    if (ispasswordvalid) {
+      res.send("Login Succesfully !!!");
+    } else {
+      throw new Error("Password is not correct");
+    }
+  } catch (err) {
+    res.status(400).send("Error on login: " + err.message);
   }
 });
 
@@ -111,8 +150,8 @@ app.patch("/update/:userId", async (req, res) => {
     if (!isUpdateAllowed) {
       throw new Error("Update not allowed");
     }
-    if(data?.skills.length >10) {
-      throw new Error("skiils cannot be greater than 10")
+    if (data?.skills.length > 10) {
+      throw new Error("skiils cannot be greater than 10");
     }
     const user = await User.findByIdAndUpdate({ _id: userId }, data, {
       returnDocument: "after",
