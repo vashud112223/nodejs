@@ -1,92 +1,20 @@
 const express = require("express");
 const { connectDB } = require("./config/database");
 const User = require("./models/user");
-const { ValidateUser } = require("./utils/validation");
-const bcrypt = require("bcrypt");
 const cookieParser = require("cookie-parser");
-const jwt = require("jsonwebtoken");
 const { userAuth } = require("./middlewares/auth");
+const { authRouter } = require("./routes/auth");
+const { profileRouter } = require("./routes/profile");
+const { requestRouter } = require("./routes/request");
 
 const app = express();
 app.use(cookieParser());
 
 app.use(express.json()); // this is use as middleware to convert the json into javascript object.
-app.post("/signup", async (req, res) => {
-  // Validate the user
-  try {
-    ValidateUser(req);
 
-    // Encrypt the password
-
-    const { firstName, lastName, emailId, password } = req.body;
-
-    const passwordHash = await bcrypt.hash(password, 10);
-
-    console.log(passwordHash);
-    console.log({ firstName });
-    const user = new User({
-      firstName,
-      lastName,
-      emailId,
-      password: passwordHash,
-    });
-    // Creating a new Instance of the user model
-    //   const user = new User({
-    //     firstName: "Aman",
-    //     lastName: "Verma",
-    //     emailId: "aman@gmail.com",
-    //     password: "aman@1234",
-    //     age: 24,
-    //     gender:"M"
-    //   })
-
-    await user.save();
-    res.send("Data added succesfully");
-  } catch (err) {
-    res.status(400).send("Error saving the data ;" + err.message);
-  }
-});
-
-app.post("/login", async (req, res) => {
-  try {
-    const { emailId, password } = req.body;
-
-    const user = await User.findOne({ emailId: emailId });
-    if (!user) {
-      throw new Error("Email is not present in DB");
-    }
-
-    const ispasswordvalid = await user.validatePassword(password);
-    if (ispasswordvalid) {
-      //Create a jwt token
-
-      const token = await user.getJWT();
-      res.cookie("token", token, { expires: new Date(Date.now() + 14 * 360000) });
-      res.send("Login Succesfully !!!");
-    } else {
-      throw new Error("Invalid Credentials");
-    }
-  } catch (err) {
-    res.status(400).send("Error on login: " + err.message);
-  }
-});
-
-app.get("/profile", userAuth, async (req, res) => {
-  try {
-    const user = req.user;
-    console.log(user);
-
-    res.send(user);
-  } catch (err) {
-    res.status(400).send("Error on login: " + err.message);
-  }
-});
-
-app.post("/sendConnectionRequest", userAuth, async (req, res) => {
-  const user = req.user;
-  console.log(user);
-  res.send(user.firstName + " sent the connection request");
-});
+app.use("/", authRouter);
+app.use("/", profileRouter);
+app.use("/", requestRouter);
 
 // get user by email
 
