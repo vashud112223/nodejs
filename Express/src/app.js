@@ -3,8 +3,12 @@ const { connectDB } = require("./config/database");
 const User = require("./models/user");
 const { ValidateUser } = require("./utils/validation");
 const bcrypt = require("bcrypt");
+const cookieParser = require("cookie-parser");
+const jwt = require("jsonwebtoken");
+const { userAuth } = require("./middlewares/auth");
 
 const app = express();
+app.use(cookieParser());
 
 app.use(express.json()); // this is use as middleware to convert the json into javascript object.
 app.post("/signup", async (req, res) => {
@@ -52,15 +56,36 @@ app.post("/login", async (req, res) => {
       throw new Error("Email is not present in DB");
     }
 
-    const ispasswordvalid = await bcrypt.compare(password, user.password);
+    const ispasswordvalid = await user.validatePassword(password);
     if (ispasswordvalid) {
+      //Create a jwt token
+
+      const token = await user.getJWT();
+      res.cookie("token", token, { expires: new Date(Date.now() + 14 * 360000) });
       res.send("Login Succesfully !!!");
     } else {
-      throw new Error("Password is not correct");
+      throw new Error("Invalid Credentials");
     }
   } catch (err) {
     res.status(400).send("Error on login: " + err.message);
   }
+});
+
+app.get("/profile", userAuth, async (req, res) => {
+  try {
+    const user = req.user;
+    console.log(user);
+
+    res.send(user);
+  } catch (err) {
+    res.status(400).send("Error on login: " + err.message);
+  }
+});
+
+app.post("/sendConnectionRequest", userAuth, async (req, res) => {
+  const user = req.user;
+  console.log(user);
+  res.send(user.firstName + " sent the connection request");
 });
 
 // get user by email
@@ -165,7 +190,6 @@ app.patch("/update/:userId", async (req, res) => {
   }
 });
 
-const { adminAuth, userAuth } = require("./middlewares/auth");
 // app.use('/',(req,res)=> {
 //     res.end("namaste")
 // })
@@ -207,8 +231,6 @@ app.get("/user/:userId/:name/:password", (req, res) => {
 app.post("/user", (req, res) => {
   res.send("User added succesfully");
 });
-
-app.use("/admin", adminAuth);
 
 app.get("/admin/getAllUser", (req, res) => {
   res.send("All Data sent");
