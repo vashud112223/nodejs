@@ -1,7 +1,8 @@
 const mongoose = require("mongoose");
 const validator = require("validator");
 const jwt = require("jsonwebtoken")
-const bcrypt = require("bcrypt")
+const bcrypt = require("bcrypt");
+const { ValidateUser } = require("../utils/validation");
 
 const { Schema } = mongoose;
 
@@ -42,12 +43,16 @@ const userSchema = new Schema(
     },
     gender: {
       type: String,
-      validate(value) {
-        // Custom Validation
-        if (!["male", "female", "others"].includes(value)) {
-          throw new Error("Gender is not allowed");
-        }
-      },
+      enum: {
+        values: ["male", "female", "others"],
+        message: `{VALUE} is not a valid gender typr`
+      }
+      // validate(value) {
+      //   // Custom Validation
+      //   if (!["male", "female", "others"].includes(value)) {
+      //     throw new Error("Gender is not allowed");
+      //   }
+      // },
     },
     about: {
       type: String,
