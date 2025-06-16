@@ -62,6 +62,7 @@ userRouter.get("/users/connections", userAuth, async (req, res) => {
 userRouter.get("/users/feed", userAuth, async (req, res) => {
   try {
     const loggedInid = req.user._id;
+    //pagination
     const page = parseInt(req.query?.page) || 1;
     let limit = parseInt(req.query?.limit) || 10;
     limit = limit > 50 ? 50 : limit;
