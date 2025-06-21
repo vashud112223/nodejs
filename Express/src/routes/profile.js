@@ -15,7 +15,7 @@ profileRouter.get("/profile/view", userAuth, async (req, res) => {
   }
 });
 
-profileRouter.patch("/profie/edit", userAuth, async (req, res) => {
+profileRouter.patch("/profile/edit", userAuth, async (req, res) => {
   try {
     if (!validateProfileData(req)) {
       throw new Error("Update not allowed");

@@ -18,7 +18,8 @@ const validateProfileData = (req)=> {
     "age",
     "gender",
     "about",
-    "skills"
+    "skills",
+    "photoURL"
   ];
   const isAllowed = Object.keys(req.body).every((field) => Allowed_Fields.includes(field));
   return isAllowed;

@@ -62,6 +62,10 @@ const userSchema = new Schema(
       type: [String],
       maxLenght: 10,
     },
+    photoURL: {
+      type: [String],
+      default: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTr5U9WBoL0qLQwT4YyjNgEzZLJxUrlSFSciQ&s"
+    }
   },
   {
     timestamps: true,

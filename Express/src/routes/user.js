@@ -4,7 +4,7 @@ const ConnectionRequest = require("../models/connectionRequest");
 const userRouter = express.Router();
 const User = require("../models/user");
 
-const USER_SAFE_DATA = "fromUserID firstName lastName age gender skills";
+const USER_SAFE_DATA = "fromUserID firstName lastName age gender about skills photoURL";
 
 userRouter.get("/users/request/received", userAuth, async (req, res) => {
   try {
@@ -13,7 +13,7 @@ userRouter.get("/users/request/received", userAuth, async (req, res) => {
     const connectionReceived = await ConnectionRequest.find({
       toUserID: loggedInid,
       status: "interested",
-    }).populate("fromUserID", "firstName lastName");
+    }).populate("fromUserID", USER_SAFE_DATA);
     // .populate("fromUserID",["firstName","lastName"]);
 
     res.json({
@@ -35,8 +35,8 @@ userRouter.get("/users/connections", userAuth, async (req, res) => {
         { fromUserID: loggedInid, status: "accepted" },
       ],
     })
-      .populate("fromUserID", "firstName lastName")
-      .populate("toUserID", "firstName lastName");
+      .populate("fromUserID", USER_SAFE_DATA)
+      .populate("toUserID", USER_SAFE_DATA);
 
     const data = connections.map((row) => {
       if (row.fromUserID._id.toString() === loggedInid.toString()) {
