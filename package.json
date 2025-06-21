@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "nodejs project",
   "scripts": {
+    "start": "node src/app.js",
     "dev": "nodemon Express/src/app.js",
     "test": "jest"
   },
