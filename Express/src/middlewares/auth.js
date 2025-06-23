@@ -1,6 +1,7 @@
 //Handle Auth Middleware for All request
 const jwt = require("jsonwebtoken");
 const User = require("../models/user");
+  console.log({"process":process.env.AWS})
 
 const userAuth = async (req, res, next) => {
   try {
@@ -9,8 +10,8 @@ const userAuth = async (req, res, next) => {
     if (!token) {
       return res.status(401).send("Please login !");
     }
-
-    const decodedMessage = await jwt.verify(token, "Ashutosh@9192");
+   console.log(process.env.JWT_SECRET)
+    const decodedMessage = await jwt.verify(token, process.env.JWT_SECRET);
     const { _id } = decodedMessage;
 
     const user = await User.findById(_id);
